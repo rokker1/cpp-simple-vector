@@ -35,12 +35,35 @@ public:
     //movable constructor
     ArrayPtr(ArrayPtr&& other) 
     {
-        std::exchange(raw_ptr_, other.Get());
+        //указатель в other становится nullptr
+        raw_ptr_ = std::exchange(other.raw_ptr_, nullptr);
     }
 
     //movable assignment
     ArrayPtr& operator=(ArrayPtr&& rhs) {
         raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr);
+        //std::exchange(rhs.raw_ptr_, raw_ptr_); Непонятен комментарий! Данная строка вызывает segmentation fault во втором тесте.
+        
+        // вот, что было в уроке:
+        //     Кролик переместился, белый цвет остался. 
+        //     Для программиста ничего страшного не произошло. Объект остался в валидном состоянии. 
+        //     Но для фокусника этот результат выглядит странно. Хорошим тоном будет задать значение цвета, которое объект будет получать по умолчанию после перемещения. 
+        //     Пусть перемещённый кролик становится невидимым благодаря функции exchange:
+            
+                // Rabbit(Rabbit&& other) {
+                //     color_ = exchange(other.color_, Color::INVISIBLE);
+                // }
+
+                // Rabbit& operator=(Rabbit&& other) {
+                //     color_ = exchange(other.color_, Color::INVISIBLE);
+                //     return *this;
+                // } 
+
+        // Теперь точно известно, что в magic_hat после перемещения будет лежать невидимый кролик.
+        // В итоговом проекте спринта вы будете добавлять поддержку move-семантики для своего вектора и списка. 
+        // Функция exchange будет полезна для гарантии, что указатель на данные не остался в перемещённом объекте, а был заменён на nullptr.
+
+
         return *this;
     }
 
@@ -77,9 +100,11 @@ public:
     }
 
     void swap(ArrayPtr& other) noexcept {
-        Type* temp = other.Get();
-        other.raw_ptr_ = raw_ptr_;
-        raw_ptr_ = temp;
+        // Type* temp = other.Get();
+        // other.raw_ptr_ = raw_ptr_;
+        // raw_ptr_ = temp;
+
+        std::swap(raw_ptr_, other.raw_ptr_);
     }
 
 private:
