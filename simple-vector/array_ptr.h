@@ -41,7 +41,12 @@ public:
 
     //movable assignment
     ArrayPtr& operator=(ArrayPtr&& rhs) {
-        raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr);
+        raw_ptr_ = std::exchange(rhs.raw_ptr_, raw_ptr_);
+
+        //std::swap(raw_ptr_, rhs.raw_ptr_); // right - alternative
+
+        //raw_ptr_ = std::exchange(rhs.raw_ptr_, nullptr); //wrong - memory leakage
+
         //std::exchange(rhs.raw_ptr_, raw_ptr_); Непонятен комментарий! Данная строка вызывает segmentation fault во втором тесте.
         
         // вот, что было в уроке:
